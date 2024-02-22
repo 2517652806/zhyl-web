@@ -28,6 +28,8 @@ if (process.env.NODE_ENV === 'production') {
   const { mockXHR } = require('../mock')
   mockXHR()
 }
+import HintButton from '@/components/HintButton';
+Vue.component(HintButton.name,HintButton);
 
 // set ElementUI lang to EN
 Vue.use(ElementUI, { locale })

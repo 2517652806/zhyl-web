@@ -16,13 +16,21 @@
               首页
             </el-dropdown-item>
           </router-link>
-         
+          <el-dropdown-item divided @click.native="showlogin(1,3)">
+            <span style="display:block;">登录状况</span>
+          </el-dropdown-item>
           <el-dropdown-item divided @click.native="logout">
             <span style="display:block;">退出</span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
+    <el-dialog title="管理员最近三次登录记录" :visible.sync="dialogTableVisible">
+      <el-table :data="tabletime" border >
+        <el-table-column property="userId" label="用户ID" width="200" align="center"></el-table-column>
+        <el-table-column property="logTime" label="日期" align="center"></el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -30,8 +38,13 @@
 import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
-
+import { adminloginlogs } from '@/api/admin';
 export default {
+  data(){
+    return{
+      dialogTableVisible:false
+    }
+  },
   components: {
     Breadcrumb,
     Hamburger
@@ -45,6 +58,17 @@ export default {
   methods: {
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
+    },
+    async showlogin(a, b) {
+      let result = await adminloginlogs(a, b);
+      if (result.code == 0) {
+        this.tabletime = result.data.records
+        this.dialogTableVisible = true
+        return 'ok'
+      }
+      else {
+        return Promise.reject(new Error('faile'));
+      }
     },
     async logout() {
       await this.$store.dispatch('user/logout')
@@ -60,7 +84,7 @@ export default {
   overflow: hidden;
   position: relative;
   background: #fff;
-  box-shadow: 0 1px 4px rgba(0,21,41,.08);
+  box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
 
   .hamburger-container {
     line-height: 46px;
@@ -68,7 +92,7 @@ export default {
     float: left;
     cursor: pointer;
     transition: background .3s;
-    -webkit-tap-highlight-color:transparent;
+    -webkit-tap-highlight-color: transparent;
 
     &:hover {
       background: rgba(0, 0, 0, .025)
@@ -116,12 +140,13 @@ export default {
         .user-avatar {
           position: relative;
           top: 8px;
-          left:-10px;
+          left: -10px;
           cursor: pointer;
           width: 30px;
           height: 30px;
-         
+
         }
+
         .el-icon-caret-bottom {
           cursor: pointer;
           position: absolute;

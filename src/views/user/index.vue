@@ -4,7 +4,7 @@
             background-color="#ffffff" text-color="#04111c" active-text-color="#ff8c00">
             <el-menu-item index="user" class="user1">个人信息</el-menu-item>
             <el-menu-item index="health" class="user2">健康分析</el-menu-item>
-            <el-menu-item index="questionnaires_user"  class="user3">调查问卷</el-menu-item>
+            <el-menu-item index="questionnaires_user" class="user3">调查问卷</el-menu-item>
             <el-menu-item index="feedback" class="user4">意见反馈</el-menu-item>
         </el-menu>
         <svg t="1708171785105" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -17,7 +17,7 @@
         <el-dropdown class="down" trigger="click">
             <div>
                 <img src="@/assets/男头像 (2).png" class="user-avatar">
-                xxx<i class="el-icon-arrow-down el-icon--right"></i>
+                {{ this.$store.state.user.uinfo.name }}<i class="el-icon-arrow-down el-icon--right"></i>
             </div>
             <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item icon="el-icon-plus">黄金糕</el-dropdown-item>
@@ -28,20 +28,35 @@
 </template>
   
 <script>
+import { usergetinfo } from '@/api/user'
 export default {
+    data(){
+        return{
+            userinfo:[]
+        }
+    },
     methods: {
-    async logout() {
-      await this.$store.dispatch('user/logout')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+        getinfo() {
+            this.$store.dispatch('user/getinfo').then(()=>{
+                console.log(this.$store)
+                this.userinfo=this.$store.state.user.uinfo
+            })
+        },
+        async logout() {
+            await this.$store.dispatch('user/logout')
+            this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+        }
+    },
+    mounted(){
+        this.getinfo()
     }
-  }
 };
 </script>
 <style>
 .main {
     background-color: #edececba;
-  height: 100%;
-  position: relative;
+    height: 100%;
+    position: relative;
 }
 
 .user-avatar {
@@ -93,6 +108,7 @@ export default {
     font-weight: bold;
     font-size: 24px;
     letter-spacing: 2px;
-}</style>
+}
+</style>
 
   

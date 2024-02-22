@@ -7,6 +7,7 @@ export function login(data) {
     data
   })
 }
+export const  usergetinfo = ()=>request({url:`/userInfo/get`,method:'get',});
 
 /* export function getInfo(token) {
   return request({

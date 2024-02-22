@@ -1,7 +1,7 @@
-import { login, logout, getInfo } from '@/api/user'
+import { login, logout, getInfo,usergetinfo} from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
-import {getadmin} from '@/api/admin'
+import {adminsearch, getadmin} from '@/api/admin'
 const getDefaultState = () => {
   return {
     token: getToken(),
@@ -10,7 +10,9 @@ const getDefaultState = () => {
     age:[],
     weight:[],
     gender:[],
-    age_num:''
+    age_num:'',
+    userinformation:{},
+    uinfo:{}
   }
 }
 
@@ -40,7 +42,13 @@ const mutations = {
   },
   SET_AGENUM:(state,num)=>{
     state.age_num=num
-  }
+  },
+  SET_USERINFORMATION:(state,userinformation)=>{
+    state.userinformation=userinformation
+  },
+  SET_INFO:(state,data)=>{
+    state.uinfo=data
+  },
 }
 
 const actions = {
@@ -61,6 +69,12 @@ const actions = {
       return Promise.reject(new Error('faile'));
     }
   },
+  async getinfo({commit}){
+    let result = await usergetinfo()
+    if(result.code ==0){
+      commit('SET_INFO',result.data)
+    }
+  },
   async Getadmin({commit}){
     let result = await getadmin();
     if(result.code ==0){
@@ -69,6 +83,16 @@ const actions = {
       commit('SET_GENDER',result.data.gender)
      
      
+      return 'ok'
+    }
+    else{
+      return Promise.reject(new Error('faile'));
+    }
+  },
+  async Adminsearch({commit}){
+    let result = await adminsearch();
+    if(result.code ==0){
+      commit('SET_USERINFORMATION',result.data)
       return 'ok'
     }
     else{

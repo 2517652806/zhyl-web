@@ -209,7 +209,7 @@ export default {
                 { value: this.$store.state.user.weight[1], name: '61kg~70kg' },
                 { value: this.$store.state.user.weight[2], name: '71kg~80kg' },
                 { value: this.$store.state.user.weight[3], name: '81kg~90kg' },
-                { value: this.$store.state.user.weight[4], name: '100kg以上' },
+                { value: this.$store.state.user.weight[4], name: '91kg及以上' },
                 {
                   // make an record to fill the bottom 50%
                   value: Number(this.$store.state.user.weight[0]) + Number(this.$store.state.user.weight[1]) + Number(this.$store.state.user.weight[2]) + Number(this.$store.state.user.weight[3]) + Number(this.$store.state.user.weight[4]),
