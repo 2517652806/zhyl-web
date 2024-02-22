@@ -1,4 +1,4 @@
-import { login, logout, getInfo,usergetinfo} from '@/api/user'
+import { login, logout, getInfo,usergetinfo,userputinfo} from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 import {adminsearch, getadmin} from '@/api/admin'
@@ -67,6 +67,12 @@ const actions = {
     } else {
       
       return Promise.reject(new Error('faile'));
+    }
+  },
+  async putinfo(name, phone, idCard, age, height, weight, gender, userId){
+    let result = await userputinfo(name, phone, idCard, age, height, weight, gender, userId)
+    if(result.code==0){
+       this.getinfo()
     }
   },
   async getinfo({commit}){

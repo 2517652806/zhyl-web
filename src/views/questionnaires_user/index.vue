@@ -3,7 +3,7 @@
         <el-menu default-active="questionnaires_user" class="el-menu-demo" mode="horizontal" @select="handleSelect" router
             background-color="#ffffff" text-color="#04111c" active-text-color="#ff8c00">
             <el-menu-item index="user" class="user1">个人信息</el-menu-item>
-            <el-menu-item index="health" class="user2">健康分析</el-menu-item>
+            <el-menu-item index="health" class="user2">个人病例</el-menu-item>
             <el-menu-item index="questionnaires_user"  class="user3">调查问卷</el-menu-item>
             <el-menu-item index="feedback" class="user4">意见反馈</el-menu-item>
         </el-menu>
@@ -17,7 +17,7 @@
         <el-dropdown class="down" trigger="click">
             <div>
                 <img src="@/assets/男头像 (2).png" class="user-avatar">
-                xxx<i class="el-icon-arrow-down el-icon--right"></i>
+                {{ this.$store.state.user.uinfo.name }}<i class="el-icon-arrow-down el-icon--right"></i>
             </div>
             <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item icon="el-icon-plus">黄金糕</el-dropdown-item>

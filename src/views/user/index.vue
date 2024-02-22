@@ -3,7 +3,7 @@
         <el-menu default-active="user" class="el-menu-demo" mode="horizontal" @select="handleSelect" router
             background-color="#ffffff" text-color="#04111c" active-text-color="#ff8c00">
             <el-menu-item index="user" class="user1">个人信息</el-menu-item>
-            <el-menu-item index="health" class="user2">健康分析</el-menu-item>
+            <el-menu-item index="health" class="user2">个人病例</el-menu-item>
             <el-menu-item index="questionnaires_user" class="user3">调查问卷</el-menu-item>
             <el-menu-item index="feedback" class="user4">意见反馈</el-menu-item>
         </el-menu>
@@ -24,35 +24,126 @@
                 <el-dropdown-item icon="el-icon-circle-plus" @click.native="logout">退出</el-dropdown-item>
             </el-dropdown-menu>
         </el-dropdown>
+        <el-card shadow="always" class="card">
+            <el-form ref="form" :model="userinfo" label-width="110px" label="right" :inline="true" style="margin-top: 80px;">
+                <el-form-item label="用户id">
+                    <el-input v-model="userinfo.userId"></el-input>
+                </el-form-item>
+                <el-form-item label="姓名">
+                    <el-input v-model="userinfo.name"></el-input>
+                </el-form-item>
+                <el-form-item label="手机号">
+                    <el-input placeholder="输入手机号" v-model="userinfo.phone"></el-input>
+                </el-form-item>
+                <el-form-item label="身份证号">
+                    <el-input placeholder="输入身份号" v-model="userinfo.idCard"></el-input>
+                </el-form-item>
+                <el-form-item label="性别">
+                    <el-select v-model="gendertext" placeholder="请选择性别">
+                        <el-option label="女" value="1"></el-option>
+                        <el-option label="男" value="0"></el-option>
+                    </el-select>
+                </el-form-item>
+                <!-- <el-input placeholder="输入性别" v-model="userinfo.gendertext"></el-input> -->
+                <el-form-item label="年龄" label-width="95px">
+                    <el-input placeholder="输入年龄" v-model="userinfo.age">
+                        <template slot="append">岁</template></el-input>
+                </el-form-item>
+                <el-form-item label="身高">
+                    <el-input placeholder="输入身高" v-model="userinfo.height">
+                        <template slot="append">cm</template></el-input>
+                </el-form-item>
+                <el-form-item label="体重" label-width="50px">
+                    <el-input placeholder="输入体重" v-model="userinfo.weight">
+                        <template slot="append">kg</template></el-input>
+                </el-form-item>
+                <el-form-item label="bmi">
+                    <el-input :disabled="true" v-model="userinfo.bmi"></el-input>
+                </el-form-item>
+                <el-form-item label="风险等级">
+                    <el-input :disabled="true" v-model="userinfo.level"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary"
+                        @click.native="putinfo(userinfo.name, userinfo.phone, userinfo.idCard, userinfo.age, userinfo.height, userinfo.weight, gendertext,userinfo.userId)"
+                        style="width: 400px;margin-left: 150px;margin-top: 30px;">保存</el-button>
+                    
+                </el-form-item>
+            </el-form>
+        </el-card>
     </div>
 </template>
   
 <script>
-import { usergetinfo } from '@/api/user'
+import { usergetinfo,userputinfo,usergetbmi} from '@/api/user'
 export default {
-    data(){
-        return{
-            userinfo:[]
+    data() {
+        return {
+            userinfo: {},
+            gendertext:'',
         }
     },
     methods: {
         getinfo() {
-            this.$store.dispatch('user/getinfo').then(()=>{
+            this.getbmi()
+            this.$store.dispatch('user/getinfo').then(() => {
                 console.log(this.$store)
-                this.userinfo=this.$store.state.user.uinfo
+                this.userinfo = this.$store.state.user.uinfo
+                if (this.userinfo.gender==0){
+                    this.gendertext='0'
+                }
+                else{
+                    this.gendertext="1"
+                }
             })
+        },
+        async getbmi(){
+            let result = await usergetbmi()
+            if(result.code==0){
+                
+            }
+
+        },
+       async putinfo(name, phone, idCard, age, height, weight, gender, userId) {
+          /*   if (gender == "男"){
+                gender="0"
+            }
+            else{
+                gender="1"
+            } */
+            console.log({name, phone, idCard, age, height, weight, gender, userId})
+            let result =await userputinfo(name, phone, idCard, age, height, weight, gender, userId)
+            if(result.code==0){
+                window.location.reload();
+                this.$message.success('保存成功')
+                this.getinfo()
+            }
+            /* this.$store.dispatch('user/putinfo'name, phone, idCard, age, height, weight, gender, userId).then(() => {
+                  
+            }) */
+        },
+        onSubmit() {
+            console.log('submit!');
         },
         async logout() {
             await this.$store.dispatch('user/logout')
             this.$router.push(`/login?redirect=${this.$route.fullPath}`)
         }
     },
-    mounted(){
+    mounted() {
         this.getinfo()
-    }
+    },
 };
 </script>
 <style>
+.card {
+    width: 50%;
+    position: absolute;
+    left: 25%;
+    top: 12%;
+    height: 580px;
+}
+
 .main {
     background-color: #edececba;
     height: 100%;

@@ -3,9 +3,10 @@
         <el-menu default-active="health" class="el-menu-demo" mode="horizontal" @select="handleSelect" router
             background-color="#ffffff" text-color="#04111c" active-text-color="#ff8c00">
             <el-menu-item index="user" class="user1">个人信息</el-menu-item>
-            <el-menu-item index="health" class="user2">健康分析</el-menu-item>
-            <el-menu-item index="questionnaires_user"  class="user3">调查问卷</el-menu-item>
+            <el-menu-item index="health" class="user2">个人病例</el-menu-item>
+            <el-menu-item index="questionnaires_user" class="user3">调查问卷</el-menu-item>
             <el-menu-item index="feedback" class="user4">意见反馈</el-menu-item>
+            <el-button @click="addcase()" type="primary" style="position: absolute;left:880px;top:8px;">上传个人病例</el-button>
         </el-menu>
         <svg t="1708171785105" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
             p-id="4981" width="64" height="64">
@@ -17,31 +18,320 @@
         <el-dropdown class="down" trigger="click">
             <div>
                 <img src="@/assets/男头像 (2).png" class="user-avatar">
-                xxx<i class="el-icon-arrow-down el-icon--right"></i>
+                {{ this.$store.state.user.uinfo.name }}<i class="el-icon-arrow-down el-icon--right"></i>
             </div>
             <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item icon="el-icon-plus">黄金糕</el-dropdown-item>
                 <el-dropdown-item icon="el-icon-circle-plus" @click.native="logout">退出</el-dropdown-item>
             </el-dropdown-menu>
         </el-dropdown>
+        <el-table :data="pcase" border stripe style="width: 100%">
+            <el-table-column property="id" label="病例ID" width="80" align="center"></el-table-column>
+            <el-table-column property="name" label="姓名" width="80" align="center"></el-table-column>
+            <el-table-column property="dateOfVisit" width="220" label="访问日期" align="center"></el-table-column>
+            <el-table-column property="purposeOfVisit" width="160" label="访问目的" align="center"></el-table-column>
+            <el-table-column property="hospitalName" width="160" label="医院名称" align="center"></el-table-column>
+            <el-table-column property="attending" width="100" label="主诊" align="center"></el-table-column>
+            <el-table-column property="nameOfDisease" width="150" label="疾病名称" align="center"></el-table-column>
+            <el-table-column property="symptom" width="60" label="症状" align="center"></el-table-column>
+            <el-table-column property="timeOfOnset" width="220" label="发病时间" align="center"></el-table-column>
+            <el-table-column property="type" label="审核状态" align="center" width="100">
+                <template slot-scope="scope">
+                    <el-tag type="info" v-if="scope.row.type === 0">待审核</el-tag>
+                    <el-tag type="success" v-if="scope.row.type === 1">审核通过</el-tag>
+                    <el-tag type="danger" v-if="scope.row.type === 2">审核未通过</el-tag>
+                </template>
+            </el-table-column>
+            <el-table-column label="操作" align="center">
+                <template slot-scope="{row}">
+                    <el-popconfirm :title="`确定要删除病例吗?`" @onConfirm="deletecase_button(row.id)">
+                        <HintButton style="margin-left:10px" slot="reference" type="danger" size="mini"
+                            icon="el-icon-delete" title="删除病例" />
+                    </el-popconfirm>
+                    <el-popconfirm :title="`确定修改个人病例吗?`"
+                        @onConfirm="putpcase(row.id, row.name, row.phone, row.dateOfVisit, row.hospitalName, row.attending, row.purposeOfVisit, row.nameOfDisease, row.timeOfOnset, row.symptom)">
+                        <HintButton style="margin-left:10px" slot="reference" type="primary" size="mini"
+                            icon="el-icon-edit" title="修改病例" />
+                    </el-popconfirm>
+                </template>
+            </el-table-column>
+        </el-table>
+        <el-pagination background :current-page="page" :total="total" :page-size="limit"
+            :page-sizes="[3, 10, 20, 30, 40, 50, 100]" style="padding: 20px 0;" layout="prev, pager, next, ->, sizes, total"
+            @current-change="currentChange" @size-change="sizeChange" />
+        <el-dialog title="修改个人病例" :visible.sync="dialogFormVisible">
+            <el-form :model="putcase" label-width="110px" label="right" :inline="true">
+                <el-form-item label="id">
+                    <el-input :disabled="true" v-model="putcase.id"></el-input>
+                </el-form-item>
+                <el-form-item label="姓名">
+                    <el-input :disabled="true" v-model="putcase.name"></el-input>
+                </el-form-item>
+                <el-form-item label="年龄">
+                    <el-input :disabled="true" placeholder="输入年龄" v-model="putcase.age"></el-input>
+                </el-form-item>
+                <el-form-item label="性别">
+                    <!-- <el-input :disabled="true" v-model="putcase.gender"></el-input> -->
+                    <el-select :disabled="true" v-model="gendertext" placeholder="请选择性别">
+                        <el-option label="女" value="1"></el-option>
+                        <el-option label="男" value="0"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="手机号">
+                    <el-input :disabled="true" placeholder="输入手机号" v-model="putcase.phone"></el-input>
+                </el-form-item>
+                <!-- <el-input placeholder="输入性别" v-model="putcase.gendertext"></el-input> -->
+                <el-form-item label="访问日期">
+                    <el-input v-model="putcase.dateOfVisit"></el-input>
+                </el-form-item>
+                <el-form-item label="医院名称">
+                    <el-input v-model="putcase.hospitalName"></el-input>
+                </el-form-item>
+                <el-form-item label="主诊">
+                    <el-input v-model="putcase.attending"></el-input>
+                </el-form-item>
+                <el-form-item label="访问目的">
+                    <el-input v-model="putcase.purposeOfVisit"></el-input>
+                </el-form-item>
+                <el-form-item label="疾病名称">
+                    <el-input v-model="putcase.nameOfDisease"></el-input>
+                </el-form-item>
+                <el-form-item label="发病时间">
+                    <el-input v-model="putcase.timeOfOnset"></el-input>
+                </el-form-item>
+                <el-form-item label="症状">
+                    <el-input v-model="putcase.symptom"></el-input>
+                </el-form-item>
+
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                <el-button type="primary"
+                    @click="put(putcase.id, putcase.name, putcase.age, gendertext, putcase.phone, putcase.dateOfVisit, putcase.hospitalName, putcase.attending, putcase.purposeOfVisit, putcase.nameOfDisease, putcase.timeOfOnset, putcase.symptom)">确
+                    定</el-button>
+            </div>
+        </el-dialog>
+        <el-dialog title="上传个人病例" :visible.sync="dialogaddVisible">
+            <el-form :model="putcase" label-width="110px" label="right" :inline="true">
+                <el-form-item label="姓名">
+                    <el-input :disabled="true" v-model="putcase.name"></el-input>
+                </el-form-item>
+                <el-form-item label="年龄">
+                    <el-input :disabled="true" placeholder="输入年龄" v-model="putcase.age"></el-input>
+                </el-form-item>
+                <el-form-item label="性别">
+                    <el-select :disabled="true" v-model="gendertext" placeholder="请选择性别">
+                        <el-option label="女" value="1"></el-option>
+                        <el-option label="男" value="0"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="手机号">
+                    <el-input placeholder="输入手机号" v-model="phone"></el-input>
+                </el-form-item>
+                <!-- <el-form-item label="访问日期" >
+                    <el-input  placeholder="xx年xx月xx日xx时xx分" v-model="dateOfVisit"></el-input>
+                </el-form-item> -->
+                <el-form-item label="访问日期">
+                    <el-col :span="11">
+                        <el-date-picker type="date" placeholder="选择日期" v-model="dateOfVisit1"
+                            style="width: 100%;"></el-date-picker>
+                    </el-col>
+                    <el-col class="line" :span="2">-</el-col>
+                    <el-col :span="11">
+                        <el-time-picker placeholder="选择时间" v-model="dateOfVisit2" style="width: 100%;"></el-time-picker>
+                    </el-col>
+                </el-form-item>
+                <el-form-item label="医院名称">
+                    <el-input v-model="hospitalName"></el-input>
+                </el-form-item>
+                <el-form-item label="主诊">
+                    <el-input v-model="attending"></el-input>
+                </el-form-item>
+                <el-form-item label="访问目的">
+                    <el-input v-model="purposeOfVisit"></el-input>
+                </el-form-item>
+                <el-form-item label="疾病名称">
+                    <el-input v-model="nameOfDisease"></el-input>
+                </el-form-item>
+                <el-form-item label="发病时间">
+                    <el-col :span="11">
+                        <el-date-picker type="date" placeholder="选择日期" v-model="timeOfOnset1"
+                            style="width: 100%;"></el-date-picker>
+                    </el-col>
+                    <el-col class="line" :span="2">-</el-col>
+                    <el-col :span="11">
+                        <el-time-picker placeholder="选择时间" v-model="timeOfOnset2" style="width: 100%;"></el-time-picker>
+                    </el-col>
+                   <!--  <el-input v-model="timeOfOnset"></el-input> -->
+                </el-form-item>
+                <el-form-item label="症状">
+                    <el-input v-model="symptom"></el-input>
+                </el-form-item>
+
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogaddVisible = false">取 消</el-button>
+                <el-button type="primary"
+                    @click="addcase2(putcase.name, putcase.age, gendertext, phone, dateOfVisit, hospitalName, attending, purposeOfVisit, nameOfDisease, timeOfOnset, symptom)">确
+                    定</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
   
 <script>
+import { usergetcase, userputcase, useraddcase ,userdelete} from '@/api/user';
+import user from '@/store/modules/user';
 export default {
+    data() {
+        return {
+            page: 1,
+            limit: 10,
+            pcase: [],
+            pagenum: 1,
+            dialogFormVisible: false,
+            dialogaddVisible: false,
+            putcase: {
+            },
+            total: 0,
+            phone: '',
+            gendertext: '',
+            dateOfVisit1: '',
+            dateOfVisit2: '',
+            hospitalName: '',
+            attending: '',
+            purposeOfVisit: '',
+            nameOfDisease: '',
+            timeOfOnset1: '',
+            timeOfOnset2:'',
+            symptom: ''
+        }
+    },
     methods: {
-    async logout() {
-      await this.$store.dispatch('user/logout')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+        addcase() {
+            this.dialogaddVisible = true
+        },
+        async addcase2(name,age,gender,phone, dateOfVisit, hospitalName, attending, purposeOfVisit, nameOfDisease, timeOfOnset, symptom) {
+            
+            let result = await useraddcase(name,age,gender,phone, dateOfVisit, hospitalName, attending, purposeOfVisit, nameOfDisease, timeOfOnset, symptom)
+            if (result.code==0){
+                this.dialogaddVisible=false
+                window.location.reload();
+                this.$message.success('上传成功')
+            }
+        },
+       /*  addcase2() {
+            console.log(this.dateOfVisit1)
+            console.log(this.dateOfVisit2)
+            console.log(this.dateOfVisit)
+            console.log(this.timeOfOnset)
+        }, */
+        currentChange(val) {
+            console.log("翻页，当前为第几页", val)
+            this.page = val
+            this.getcase()
+        },
+        sizeChange(val) {
+            console.log("改变每页多少条", val)
+            this.limit = val
+            this.getcase()
+        },
+        getinfo() {
+            this.$store.dispatch('user/getinfo').then(() => {
+
+                /* this.userinfo = this.$store.state.user.uinfo
+                if (this.userinfo.gender==0){
+                    this.userinfo.gender="男"
+                }
+                else{
+                    this.userinfo.gender="女"
+                } */
+            })
+        },
+        putpcase(id, name, phone, dateOfVisit, hospitalName, attending, purposeOfVisit, nameOfDisease, timeOfOnset, symptom) {
+            this.putcase = {
+                id,
+                name,
+                age: this.$store.state.user.uinfo.age,
+                gender: this.$store.state.user.uinfo.gender,
+                phone,
+                dateOfVisit, hospitalName, attending, purposeOfVisit, nameOfDisease, timeOfOnset, symptom
+            }
+            if (this.putcase.gender == 0) {
+                this.gendertext = '0'
+            }
+            else {
+                this.gendertext = "1"
+            }
+            this.dialogFormVisible = true;
+        },
+        async put(id, name, age, gender, phone, dateOfVisit, hospitalName, attending, purposeOfVisit, nameOfDisease, timeOfOnset, symptom) {
+            let result = await userputcase(id, name, age, gender, phone, dateOfVisit, hospitalName, attending, purposeOfVisit, nameOfDisease, timeOfOnset, symptom)
+            if (result.code == 0) {
+                this.dialogFormVisible = false;
+
+                window.location.reload();
+
+            }
+        },
+        async getcase() {
+            let result = await usergetcase(this.page, this.limit)
+            if (result.code == 0) {
+                this.pcase = result.data.records
+                this.total = result.data.total
+            }
+        },
+        async logout() {
+            await this.$store.dispatch('user/logout')
+            this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+        }
+    },
+    mounted() {
+        this.getinfo()
+        this.getcase()
+    },
+    computed: {
+        dateOfVisit: function () {
+            // `this` 指向当前 Vue 实例
+            const date1 = new Date(this.dateOfVisit1);
+            const date2 = new Date(this.dateOfVisit2);
+
+            // 将日期转换为时间戳并相加
+            const combinedTimestamp = date1.getTime() + date2.getTime();
+
+            // 使用新的时间戳创建 Date 对象
+            const combinedDate = new Date(combinedTimestamp);
+
+            // 格式化日期
+            const formattedDateTime = `${combinedDate.getFullYear()}年${combinedDate.getMonth() + 1}月${combinedDate.getDate()}日${combinedDate.getHours()}时${combinedDate.getMinutes()}分${combinedDate.getSeconds()}秒`;
+
+            console.log(formattedDateTime); // 输出格式化后的日期时间字符串
+            return formattedDateTime;
+        },
+        timeOfOnset: function () {
+            // `this` 指向当前 Vue 实例
+            const date1 = new Date(this.timeOfOnset1);
+            const date2 = new Date(this.timeOfOnset2);
+
+            // 将日期转换为时间戳并相加
+            const combinedTimestamp = date1.getTime() + date2.getTime();
+
+            // 使用新的时间戳创建 Date 对象
+            const combinedDate = new Date(combinedTimestamp);
+
+            // 格式化日期
+            const formattedDateTime = `${combinedDate.getFullYear()}年${combinedDate.getMonth() + 1}月${combinedDate.getDate()}日${combinedDate.getHours()}时${combinedDate.getMinutes()}分${combinedDate.getSeconds()}秒`;
+
+            return formattedDateTime;
+        }
     }
-  }
 };
 </script>
 <style>
 .main {
     background-color: #edececba;
-  height: 100%;
-  position: relative;
+    height: 100%;
+    position: relative;
 }
 
 .user-avatar {
@@ -93,6 +383,7 @@ export default {
     font-weight: bold;
     font-size: 24px;
     letter-spacing: 2px;
-}</style>
+}
+</style>
 
   

@@ -58,15 +58,18 @@
         <el-dialog title="用户个人病例" :visible.sync="dialogcaseVisible">
             <el-table :data="pcase" border stripe style="width: 100%">
                 <el-table-column property="userId" label="用户ID" width="70" align="center"></el-table-column>
-                <el-table-column property="name" label="姓名" width="70" align="center"></el-table-column>
+                <el-table-column property="name" label="姓名" width="60" align="center"></el-table-column>
                 <el-table-column property="dateOfVisit" width="130" label="访问日期" align="center"></el-table-column>
-                <el-table-column property="purposeOfVisit" width="100" label="访问目的" align="center"></el-table-column>
-                <el-table-column property="hospitalName" width="120" label="医院名称" align="center"></el-table-column>
-                <el-table-column property="type" width="60" label="审核状态" align="center">
+                <el-table-column property="purposeOfVisit" width="80" label="访问目的" align="center"></el-table-column>
+                <el-table-column property="hospitalName" width="100" label="医院名称" align="center"></el-table-column>
+                <el-table-column property="type" width="100" label="审核状态" align="center">
                     <template slot-scope="scope">
-                        <span v-if="scope.row.type === 0">提交</span>
+                        <el-tag type="info" v-if="scope.row.type === 0">待审核</el-tag>
+                        <el-tag type="success" v-if="scope.row.type === 1">审核通过</el-tag>
+                        <el-tag type="danger" v-if="scope.row.type === 2">审核未通过</el-tag>
+                        <!-- <span v-if="scope.row.type === 0">提交</span>
                         <span v-else-if="scope.row.type === 1">通过</span>
-                        <span v-else-if="scope.row.type === 2">未通过</span>
+                        <span v-else-if="scope.row.type === 2">未通过</span> -->
                     </template>
                 </el-table-column>
                 <el-table-column label="操作" align="center">
