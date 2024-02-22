@@ -4,7 +4,7 @@
             background-color="#ffffff" text-color="#04111c" active-text-color="#ff8c00">
             <el-menu-item index="user" class="user1">个人信息</el-menu-item>
             <el-menu-item index="health" class="user2">个人病例</el-menu-item>
-            <el-menu-item index="questionnaires_user" class="user3">调查问卷</el-menu-item>
+          
             <el-menu-item index="feedback" class="user4">意见反馈</el-menu-item>
             <el-button @click="addcase()" type="primary" style="position: absolute;left:880px;top:8px;">上传个人病例</el-button>
         </el-menu>
@@ -21,8 +21,8 @@
                 {{ this.$store.state.user.uinfo.name }}<i class="el-icon-arrow-down el-icon--right"></i>
             </div>
             <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item icon="el-icon-plus">黄金糕</el-dropdown-item>
-                <el-dropdown-item icon="el-icon-circle-plus" @click.native="logout">退出</el-dropdown-item>
+                
+                <el-dropdown-item @click.native="logout">退出</el-dropdown-item>
             </el-dropdown-menu>
         </el-dropdown>
         <el-table :data="pcase" border stripe style="width: 100%">
@@ -50,8 +50,8 @@
                     </el-popconfirm>
                     <el-popconfirm :title="`确定修改个人病例吗?`"
                         @onConfirm="putpcase(row.id, row.name, row.phone, row.dateOfVisit, row.hospitalName, row.attending, row.purposeOfVisit, row.nameOfDisease, row.timeOfOnset, row.symptom)">
-                        <HintButton style="margin-left:10px" slot="reference" type="primary" size="mini"
-                            icon="el-icon-edit" title="修改病例" />
+                        <HintButton style="margin-left:10px" slot="reference" type="primary" size="mini" icon="el-icon-edit"
+                            title="修改病例" />
                     </el-popconfirm>
                 </template>
             </el-table-column>
@@ -114,10 +114,10 @@
         <el-dialog title="上传个人病例" :visible.sync="dialogaddVisible">
             <el-form :model="putcase" label-width="110px" label="right" :inline="true">
                 <el-form-item label="姓名">
-                    <el-input :disabled="true" v-model="putcase.name"></el-input>
+                    <el-input :disabled="true" v-model="name"></el-input>
                 </el-form-item>
                 <el-form-item label="年龄">
-                    <el-input :disabled="true" placeholder="输入年龄" v-model="putcase.age"></el-input>
+                    <el-input :disabled="true" placeholder="输入年龄" v-model="age"></el-input>
                 </el-form-item>
                 <el-form-item label="性别">
                     <el-select :disabled="true" v-model="gendertext" placeholder="请选择性别">
@@ -162,7 +162,7 @@
                     <el-col :span="11">
                         <el-time-picker placeholder="选择时间" v-model="timeOfOnset2" style="width: 100%;"></el-time-picker>
                     </el-col>
-                   <!--  <el-input v-model="timeOfOnset"></el-input> -->
+                    <!--  <el-input v-model="timeOfOnset"></el-input> -->
                 </el-form-item>
                 <el-form-item label="症状">
                     <el-input v-model="symptom"></el-input>
@@ -172,7 +172,7 @@
             <div slot="footer" class="dialog-footer">
                 <el-button @click="dialogaddVisible = false">取 消</el-button>
                 <el-button type="primary"
-                    @click="addcase2(putcase.name, putcase.age, gendertext, phone, dateOfVisit, hospitalName, attending, purposeOfVisit, nameOfDisease, timeOfOnset, symptom)">确
+                    @click="addcase2(name, age, gendertext, phone, dateOfVisit, hospitalName, attending, purposeOfVisit, nameOfDisease, timeOfOnset, symptom)">确
                     定</el-button>
             </div>
         </el-dialog>
@@ -180,7 +180,7 @@
 </template>
   
 <script>
-import { usergetcase, userputcase, useraddcase ,userdelete} from '@/api/user';
+import { usergetcase, userputcase, useraddcase, userdelete } from '@/api/user';
 import user from '@/store/modules/user';
 export default {
     data() {
@@ -203,29 +203,36 @@ export default {
             purposeOfVisit: '',
             nameOfDisease: '',
             timeOfOnset1: '',
-            timeOfOnset2:'',
+            timeOfOnset2: '',
             symptom: ''
         }
     },
     methods: {
+        async deletecase_button(id) {
+            let result = await userdelete(id)
+            if (result.code == 0) {
+
+                window.location.reload();
+            }
+        },
         addcase() {
             this.dialogaddVisible = true
         },
-        async addcase2(name,age,gender,phone, dateOfVisit, hospitalName, attending, purposeOfVisit, nameOfDisease, timeOfOnset, symptom) {
-            
-            let result = await useraddcase(name,age,gender,phone, dateOfVisit, hospitalName, attending, purposeOfVisit, nameOfDisease, timeOfOnset, symptom)
-            if (result.code==0){
-                this.dialogaddVisible=false
+        async addcase2(name, age, gender, phone, dateOfVisit, hospitalName, attending, purposeOfVisit, nameOfDisease, timeOfOnset, symptom) {
+
+            let result = await useraddcase(name, age, gender, phone, dateOfVisit, hospitalName, attending, purposeOfVisit, nameOfDisease, timeOfOnset, symptom)
+            if (result.code == 0) {
+                this.dialogaddVisible = false
                 window.location.reload();
                 this.$message.success('上传成功')
             }
         },
-       /*  addcase2() {
-            console.log(this.dateOfVisit1)
-            console.log(this.dateOfVisit2)
-            console.log(this.dateOfVisit)
-            console.log(this.timeOfOnset)
-        }, */
+        /*  addcase2() {
+             console.log(this.dateOfVisit1)
+             console.log(this.dateOfVisit2)
+             console.log(this.dateOfVisit)
+             console.log(this.timeOfOnset)
+         }, */
         currentChange(val) {
             console.log("翻页，当前为第几页", val)
             this.page = val
@@ -238,7 +245,14 @@ export default {
         },
         getinfo() {
             this.$store.dispatch('user/getinfo').then(() => {
-
+                if (this.$store.state.user.uinfo.gender == 0) {
+                    this.gendertext = '0'
+                }
+                else {
+                    this.gendertext = "1"
+                }
+                this.age=this.$store.state.user.uinfo.age
+                this.name=this.$store.state.user.uinfo.name
                 /* this.userinfo = this.$store.state.user.uinfo
                 if (this.userinfo.gender==0){
                     this.userinfo.gender="男"
@@ -289,6 +303,7 @@ export default {
     mounted() {
         this.getinfo()
         this.getcase()
+
     },
     computed: {
         dateOfVisit: function () {

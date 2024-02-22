@@ -95,8 +95,8 @@ const actions = {
       return Promise.reject(new Error('faile'));
     }
   },
-  async Adminsearch({commit}){
-    let result = await adminsearch();
+  async Adminsearch({commit},{ pageNum, pageSize }){
+    let result = await adminsearch(pageNum,pageSize);
     if(result.code ==0){
       commit('SET_USERINFORMATION',result.data)
       return 'ok'

@@ -4,7 +4,6 @@
             background-color="#ffffff" text-color="#04111c" active-text-color="#ff8c00">
             <el-menu-item index="user" class="user1">个人信息</el-menu-item>
             <el-menu-item index="health" class="user2">个人病例</el-menu-item>
-            <el-menu-item index="questionnaires_user" class="user3">调查问卷</el-menu-item>
             <el-menu-item index="feedback" class="user4">意见反馈</el-menu-item>
         </el-menu>
         <svg t="1708171785105" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -20,8 +19,8 @@
                 {{ this.$store.state.user.uinfo.name }}<i class="el-icon-arrow-down el-icon--right"></i>
             </div>
             <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item icon="el-icon-plus">黄金糕</el-dropdown-item>
-                <el-dropdown-item icon="el-icon-circle-plus" @click.native="logout">退出</el-dropdown-item>
+                
+                <el-dropdown-item  @click.native="logout">退出</el-dropdown-item>
             </el-dropdown-menu>
         </el-dropdown>
         <el-card shadow="always" class="card">

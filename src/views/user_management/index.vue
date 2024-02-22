@@ -3,7 +3,7 @@
 
         <div style="margin-bottom: 20px">
             <!-- 添加与批量添加按钮 -->
-            <el-button type="success" @click="vcase">审核个人病例</el-button>
+            <el-button type="success" @click="vcase(1,3)">审核个人病例</el-button>
         </div>
 
         <el-table :data="tableData" border stripe style="width: 100%">
@@ -23,7 +23,7 @@
             </el-table-column>
             <el-table-column prop="disable" label="禁用" width="60" align="center">
                 <template slot-scope="scope">
-                    {{ scope.row.disable === 0 ? '是' : '否' }}
+                    {{ scope.row.disable === 0 ? '否' : '是' }}
                 </template>
             </el-table-column>
             <el-table-column prop="age" label="年龄" width="120" align="center">
@@ -93,6 +93,7 @@
         <el-pagination :current-page="page" :total="total" :page-size="limit" :page-sizes="[3, 10, 20, 30, 40, 50, 100]"
             style="padding: 20px 0;" layout="prev, pager, next, jumper, ->, sizes, total" @current-change="currentChange"
             @size-change="sizeChange" />
+            
 
     </div>
 </template>
@@ -127,10 +128,10 @@ export default {
             },
             selectedIds: [], // 所有选择的user的id的数组
             users: [], // 当前页的用户列表
-            page: 1, // 当前页码
+            page:1, // 当前页码
             page1:1,
-            limit: 3, // 每页数量
-            limit1:1,
+            limit:3, // 每页数量
+            limit1:3,
             total: 0, // 总数量
             total1:0,
             user: {}, // 当前要操作的user
@@ -150,18 +151,20 @@ export default {
             userRoleIds: [], // 用户的角色ID的列表
             isIndeterminate: false, // 是否是不确定的
             checkAll: false, // 是否全选
-            tableData: [{}],
+            tableData: [],
             tabletime: [],
             pcase: [],
             tableData1:[],
         }
     },
     methods: {
-        Adminsearch() {
-            this.$store.dispatch('user/Adminsearch').then(() => {
-                this.totalData = this.$store.state.user.userinformation.records
-                this.total = this.$store.state.user.userinformation.total
-                this.getTabelData()
+        Adminsearch(pageNum,pageSize) {
+            console.log({pageNum:'1',pageSize:'2'})
+            this.$store.dispatch('user/Adminsearch', { pageNum: pageNum, pageSize: pageSize }).then(() => {
+                /* this.totalData = this.$store.state.user.userinformation.records */
+                this.total = this.$store.state.user.userinformation.total  
+                this.tableData = this.$store.state.user.userinformation.records
+                
             })
         },
         async excel(name1,phone,idCard){
@@ -182,42 +185,48 @@ export default {
             }
         },
         //查看个人病例
-        async vcase() {
-            let result = await adminivcase()
+        async vcase(pageNum,pageSize) {
+            let result = await adminivcase(pageNum,pageSize)
             if (result.code == 0) {
                 this.dialogcaseVisible = true
                 this.pcase = result.data.records
                 this.total1=result.data.total
             }
         },
-        getTabelData() {
+       /*  getTabelData() {
             this.tableData = this.totalData.slice((this.page - 1) * this.limit, this.page * this.limit)
         },
         getTabelData1() {
             this.tableData1 = this.pcase.slice((this.page1 - 1) * this.limit1, this.page1 * this.limit1)
-        },
+        }, */
         currentChange1(val) {
             console.log("翻页，当前为第几页", val)
             this.page1 = val
-            this.getTabelData1()
+            this.vcase(this.page1,this.limit1)
         },
         currentChange(val) {
             console.log("翻页，当前为第几页", val)
             this.page = val
-            this.getTabelData()
+            this.Adminsearch(this.page,this.limit)
         },
         sizeChange1(val) {
             console.log("改变每页多少条", val)
             this.limit1 = val
             this.page1 = 1
-            this.getTabelData1()
+            this.vcase(this.page1,this.limit1)
         },
         sizeChange(val) {
             console.log("改变每页多少条", val)
             this.limit = val
             this.page = 1
-            this.getTabelData()
+            this.Adminsearch(this.page,this.limit)
         },
+       /*  sizeChange(val) {
+            console.log("改变每页多少条", val)
+            this.limit = val
+            this.page = 1
+            this.getTabelData()
+        }, */
         renderGender(gender) {
             return gender === 0 ? '男' : '女';
         },
@@ -248,7 +257,7 @@ export default {
         },
     },
     mounted() {
-        this.Adminsearch()
+        this.Adminsearch(this.page,this.limit)
     }
 
 }

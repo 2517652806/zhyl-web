@@ -50,10 +50,10 @@ export const constantRoutes = [
     path:'/health',
     component:() => import('@/views/health/index') ,
   },
-  {
+ /*  {
     path:'/questionnaires_user',
     component:() => import('@/views/questionnaires_user/index') ,
-  },
+  }, */
   {
     path:'/feedback',
     component:() => import('@/views/feedback/index')
@@ -120,18 +120,7 @@ export const constantRoutes = [
       }
     ]
   },
-  {
-    path: '/qestionnaires',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: '调查问卷',
-        component: () => import('@/views/questionnaires/index'),
-        meta: { title: '调查问卷', icon: 'nested' }
-      }
-    ]
-  },
+
 
 
  /*  {

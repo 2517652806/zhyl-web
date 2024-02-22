@@ -7,6 +7,7 @@ export function login(data) {
     data
   })
 }
+export const  useropinion = (opinion)=>request({url:`/userInfo/opinion`,method:'post',data:{opinion}});
 export const  userdelete = (id)=>request({url:`/casea/delete/${id}`,method:'delete',});
 export const  useraddcase = (name, age,gender,phone,dateOfVisit,hospitalName, attending,purposeOfVisit,nameOfDisease,timeOfOnset,symptom)=>request({url:`/casea/add`,method:'post',data:{name,age,gender,phone,dateOfVisit,hospitalName, attending,purposeOfVisit,nameOfDisease,timeOfOnset,symptom}});
 export const  userputcase = (id, name, age,gender,phone, dateOfVisit, hospitalName, attending, purposeOfVisit, nameOfDisease,timeOfOnset,symptom)=>request({url:`/casea/update`,method:'put',data:{id, name, age,gender,phone, dateOfVisit, hospitalName, attending, purposeOfVisit, nameOfDisease,timeOfOnset,symptom}});

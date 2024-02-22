@@ -20,10 +20,10 @@
                 {{ this.$store.state.user.uinfo.name }}<i class="el-icon-arrow-down el-icon--right"></i>
             </div>
             <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item icon="el-icon-plus">黄金糕</el-dropdown-item>
-                <el-dropdown-item icon="el-icon-circle-plus" @click.native="logout">退出</el-dropdown-item>
+                <el-dropdown-item  @click.native="logout">退出</el-dropdown-item>
             </el-dropdown-menu>
         </el-dropdown>
+        
     </div>
 </template>
   

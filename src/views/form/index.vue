@@ -41,31 +41,27 @@ export default {
   },
   //组件挂载完毕
   mounted() {
-    this.admin()
+    this.admin(this.page, this.limit)
   },
   methods: {
-    async admin() {
-      let result = await adminopinion()
+    async admin(pageNum, pageSize) {
+      let result = await adminopinion(pageNum, pageSize)
       if (result.code == 0) {
         this.$message.success('获取数据成功')
         this.tabeledata = result.data.records
         this.total = result.data.total
-        this.getTabelData()
       }
-    },
-    getTabelData() {
-      this.tableData = this.tabeledata.slice((this.page - 1) * this.limit, this.page * this.limit)
     },
     currentChange(val) {
       console.log("翻页，当前为第几页", val)
       this.page = val
-      this.getTabelData()
+      this.admin(this.page, this.limit)
     },
     sizeChange(val) {
       console.log("改变每页多少条", val)
       this.limit = val
       this.page = 1
-      this.getTabelData()
+      this.admin(this.page, this.limit)
     },
     formatTimestamp(timestamp) {
       const date = new Date(timestamp);
